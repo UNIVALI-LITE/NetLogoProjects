@@ -7,14 +7,38 @@ globals[
  acoes_por_tick_atual
  incremento_porcentagem
  porcentagem
+ cor_da_agua
 ]
 
 to set_variaveis_observadas
-  let minutos_nacl_3g 0
-  let minutos_nacl_15g 0
-  let minutos_detergente_1gota 0
-  let minutos_detergente_10gotas 0
-  let minutos_acucar_
+
+  let minutos_agua 100
+  let minutos_nacl_3g 300
+  let minutos_nacl_15g 1500
+  let minutos_detergente_1gota 100
+  let minutos_detergente_10gotas 1000
+  let minutos_acucar_1g 90
+  let minutos_acucar_10g 10
+
+  if reagente = "Nenhum"[
+    set minutos_ate_colorir_completamente minutos_agua
+  ]
+  if reagente = "NaCl"[
+    set minutos_ate_colorir_completamente (((minutos_nacl_3g / 3) + (minutos_nacl_15g / 15)) / 2) * gramas_ou_gotas
+  ]
+  if reagente = "Detergente"[
+    set minutos_ate_colorir_completamente (((minutos_detergente_1gota) + (minutos_detergente_10gotas / 10)) / 2) * gramas_ou_gotas
+  ]
+  if reagente = "Açucar"[
+    set minutos_ate_colorir_completamente (((minutos_acucar_1g) + (minutos_acucar_10g * 10)) / 2) / gramas_ou_gotas
+  ]
+
+  ;Cuida da cor da agua
+  set cor_da_agua blue
+
+  ask patches[
+    if pcolor = 107 [ set pcolor cor_da_agua ]
+  ]
 
 end
 
@@ -30,24 +54,26 @@ to setup
 
   set subida_completa 0
   set acoes_por_tick_atual 0.0
-  set minutos_ate_colorir_completamente 600
+  set_variaveis_observadas
+
+  set_variaveis_observadas
 
   set acoes_por_tick 4252 / minutos_ate_colorir_completamente
 end
 
 to go
 
-  set subiu_agua 0
-  set coloriu_flor 0
-
   ask patches[
-    if subiu_agua = 0 and subida_completa = 0[
-      subir_agua
-    ]
-    if subida_completa = 1 and acoes_por_tick_atual < acoes_por_tick[
-      colorir_flor
+    if acoes_por_tick_atual < acoes_por_tick[
+      if subida_completa = 0[
+        subir_agua
+      ]
+      if subida_completa = 1[
+        colorir_flor
+      ]
     ]
   ]
+
   if acoes_por_tick_atual >= acoes_por_tick[
     tick
     set acoes_por_tick_atual acoes_por_tick_atual - acoes_por_tick
@@ -56,7 +82,7 @@ end
 
 to colorir_flor
   if pcolor = 8[
-    set pcolor red
+    set pcolor cor_da_agua
     set coloriu_flor coloriu_flor + 1
     set acoes_por_tick_atual acoes_por_tick_atual + 1
     set porcentagem porcentagem + incremento_porcentagem
@@ -64,14 +90,14 @@ to colorir_flor
 end
 
 to subir_agua ; 84 vezes para completar
-  if pcolor = 62[
+  if pcolor = 62[ ; inteirior do tubo
     let ao_lado_da_borda 0
     let px pxcor - 1
     let py pycor
 
     ask patch px py
     [
-      if pcolor = 61 [ set ao_lado_da_borda 1 ]
+      if pcolor = 61 [ set ao_lado_da_borda 1 ] ; cor da borda
     ]
 
     if ao_lado_da_borda = 1
@@ -79,26 +105,26 @@ to subir_agua ; 84 vezes para completar
       let agua 0
       ask neighbors4
       [
-        if pcolor = 107 [ set agua 1 ]
+        if pcolor = cor_da_agua [ set agua 1 ] ; cor da água
       ]
 
       if agua = 1
       [
-        set pcolor 107
+        set pcolor cor_da_agua
         set px pxcor + 3
-        ask patch px py[ set pcolor 107]
+        ask patch px py[ set pcolor cor_da_agua]
 
         set px pxcor + 1
         set py pycor - 1
 
-        ask patch px py[ set pcolor 107]
+        ask patch px py[ set pcolor cor_da_agua]
         if pycor = 116 [
-          ask patch px pycor [ set pcolor 107]
+          ask patch px pycor [ set pcolor cor_da_agua]
         ]
         set px pxcor + 2
-        ask patch px py[ set pcolor 107]
+        ask patch px py[ set pcolor cor_da_agua]
         if pycor = 116 [
-          ask patch px pycor [ set pcolor 107]
+          ask patch px pycor [ set pcolor cor_da_agua]
           set subida_completa 1
         ]
         set subiu_agua 1
@@ -109,9 +135,9 @@ to subir_agua ; 84 vezes para completar
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-222
+421
 10
-833
+1032
 622
 -1
 -1
@@ -136,10 +162,10 @@ ticks
 30.0
 
 BUTTON
-11
-24
-91
-57
+8
+10
+205
+43
 Preparar
 setup
 NIL
@@ -153,10 +179,10 @@ NIL
 1
 
 BUTTON
-99
-24
-199
-57
+217
+10
+416
+43
 Iniciar/Parar
 go
 T
@@ -170,35 +196,35 @@ NIL
 1
 
 SLIDER
-11
-133
-183
-166
+8
+103
+415
+136
 gramas_ou_gotas
 gramas_ou_gotas
-0
+1
 15
-7.0
+10.0
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-11
-73
-149
-118
+8
+51
+414
+96
 reagente
 reagente
-"NaCl" "Detergente" "Açucar"
-0
+"Nenhum" "NaCl" "Detergente" "Açucar"
+2
 
 PLOT
-11
-183
-211
-333
+8
+142
+415
+457
 Coloração p/ minuto
 Minutos
 % Colorido
