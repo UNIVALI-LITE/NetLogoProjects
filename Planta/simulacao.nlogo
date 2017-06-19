@@ -1,8 +1,22 @@
 globals[
  subiu_agua
- subida_completa
- coloriu_flor
+ subida_completa ; 84 passos até completar
+ coloriu_flor ; 4168 patches
+ minutos_ate_colorir_completamente ; 4252 patches ao total
+ acoes_por_tick
+ acoes_por_tick_atual
+ incremento_porcentagem
+ porcentagem
 ]
+
+to set_variaveis_observadas
+  let minutos_nacl_3g 0
+  let minutos_nacl_15g 0
+  let minutos_detergente_1gota 0
+  let minutos_detergente_10gotas 0
+  let minutos_acucar_
+
+end
 
 to setup
   clear-all
@@ -11,30 +25,41 @@ to setup
   import-pcolors "Fundo_planta.png"
   reset-ticks
 
+  set incremento_porcentagem 0.023992322456813
+  set porcentagem 0
+
   set subida_completa 0
+  set acoes_por_tick_atual 0.0
+  set minutos_ate_colorir_completamente 600
+
+  set acoes_por_tick 4252 / minutos_ate_colorir_completamente
 end
 
 to go
-  if ticks mod 1000 = 0[
-    set subiu_agua 0
-    set coloriu_flor 0
 
-    ask patches[
-      if subiu_agua = 0 and subida_completa = 0[
-        subir_agua
-      ]
-      if subida_completa = 1 and coloriu_flor < 3[
-        colorir_flor
-      ]
+  set subiu_agua 0
+  set coloriu_flor 0
+
+  ask patches[
+    if subiu_agua = 0 and subida_completa = 0[
+      subir_agua
+    ]
+    if subida_completa = 1 and acoes_por_tick_atual < acoes_por_tick[
+      colorir_flor
     ]
   ]
-  tick
+  if acoes_por_tick_atual >= acoes_por_tick[
+    tick
+    set acoes_por_tick_atual acoes_por_tick_atual - acoes_por_tick
+  ]
 end
 
 to colorir_flor
   if pcolor = 8[
     set pcolor red
     set coloriu_flor coloriu_flor + 1
+    set acoes_por_tick_atual acoes_por_tick_atual + 1
+    set porcentagem porcentagem + incremento_porcentagem
   ]
 end
 
@@ -77,15 +102,16 @@ to subir_agua ; 84 vezes para completar
           set subida_completa 1
         ]
         set subiu_agua 1
+        set acoes_por_tick_atual acoes_por_tick_atual + 1
       ]
     ]
   ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+222
 10
-821
+833
 622
 -1
 -1
@@ -142,6 +168,49 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+11
+133
+183
+166
+gramas_ou_gotas
+gramas_ou_gotas
+0
+15
+7.0
+1
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+11
+73
+149
+118
+reagente
+reagente
+"NaCl" "Detergente" "Açucar"
+0
+
+PLOT
+11
+183
+211
+333
+Coloração p/ minuto
+Minutos
+% Colorido
+0.0
+1440.0
+0.0
+100.0
+true
+true
+"" ""
+PENS
+"Planta" 1.0 0 -16777216 true "" "plot porcentagem"
 
 @#$#@#$#@
 ## WHAT IS IT?
