@@ -1,78 +1,111 @@
+;;
+
 extensions [bitmap]
 
-globals [
-
+globals[
 ]
 
-breed [ walls wall ]
-breed [ erasers erase]
-breed [ particles particle ]
+breed [ gelos gelo ]
+breed [ combustiveis combustivel]
+breed [ aguas agua]
+gelos-own [massa-gelo temperatura-gelo]
+combustiveis-own [massa-combustivel]
+
 
 to setup
-  ca
+  clear-all
   ask patches [set pcolor white]
+  set-patch-size 3
+  resize-world 0 150 0 150
   import-pcolors "becker.png"
   reset-ticks
+
+  criarCombustiveis
+  criarGelo 73 95
+  ;;criarAgua
+
+
 end
 
-;; step the model
 to go
-    ca
-  ask patches [set pcolor white]
-  import-pcolors "becker.png"
-  reset-ticks
-  make-particles-within-box
-  display
+   if ticks > 300 [stop]
+   consumirGelo
+   consumirCombustivel
+   print ticks
+   tick
 end
 
-to calculate-tick-delta
+to consumirGelo
+  ask gelos[
 
-end
-
-to mouseme
-  if mouse-inside? [setxy mouse-xcor mouse-ycor]
-    set hidden? not mouse-inside?
-end
-
-to take-fuel
-  if fuel = "Amendoim" [
-    set shape "box" set color 12 set size (0.2 * mass)
   ]
-  if fuel = "Nozes" [
-    set shape "box" set color 37 set size (0.2 * mass)
-  ]
-  if fuel = "Castanha" [
-    set shape "box" set color 39 set size (0.2 * mass)
+end
+
+to consumirCombustivel
+  ask combustiveis[
+    set size (massa-combustivel / 10)
+    if size < 10 [
+      set size massa-inicial * 0.1
+      set shape "square"
+      set color black
+      setxy 74 61
+    ]
   ]
 
 end
 
-to make-particles-within-box
-  create-particles 1 [
-    take-fuel
-    setup-particle
-    position-particle
+to criarGelo [x y]
+  create-gelos 1[
+    set temperatura-gelo 0
+    set color 95
+    set size 30
+    set shape "box"
+    setxy x y
   ]
-  calculate-tick-delta
+
 end
 
-to position-particle
-  setxy 0 -80
+to criarAgua
+  create-aguas 1[
+    set color 80
+    set size 60
+    set shape "rectangle"
+    setxy 66 96
+  ]
+
 end
 
-to setup-particle  ;; particle procedure
-  ;;set mass
-  ;;set fuel
+to criarCombustiveis
+  create-combustiveis 1[
+    if fuel = "Amendoim" [
+      set shape "Amendoim"
+      set color 12
+      set size (0.10 * massa-inicial)
+    ]
+    if fuel = "Nozes" [
+      set shape "Amendoim"
+      set color 37
+      set size (0.1 * massa-inicial)
+    ]
+    if fuel = "Castanha" [
+      set shape "Amendoim"
+      set color 39
+      set size (0.1 * massa-inicial)
+    ]
+    setxy 74 60
+    set massa-combustivel massa-inicial
+  ]
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-245
-45
-817
-618
+348
+49
+809
+511
 -1
 -1
-2.344
+3.0
 1
 50
 1
@@ -82,12 +115,12 @@ GRAPHICS-WINDOW
 1
 1
 1
--120
-120
--120
-120
 0
+150
 0
+150
+1
+1
 1
 ticks
 30.0
@@ -103,67 +136,65 @@ Massa Inicial do Combustível
 1
 
 CHOOSER
-39
-240
-219
-285
+41
+216
+221
+261
 fuel
 fuel
 "Amendoim" "Nozes" "Castanha"
 1
 
 TEXTBOX
-41
-217
-191
-235
+43
+193
+193
+211
 Tipos de Combustível
 11
 0.0
 1
 
 OUTPUT
-838
-423
-1212
-472
+865
+433
+1239
+482
 13
 
 PLOT
-835
-47
-1207
-211
-Temperatura de Água
+863
+45
+1235
+209
+Volume de Água
 Tempo (s)
-Temperatura (˚C)
+Volume (ml)
 0.0
 300.0
 0.0
 100.0
 false
 false
-"" ""
+"" "ask gelos [\n  create-temporary-plot-pen (word who)\n  set-plot-pen-color blue\n  set temperatura-gelo temperatura-gelo + 1\n  plotxy ticks temperatura-gelo\n]"
 PENS
-"default" 1.0 0 -16777216 true "" "plot count turtles"
 
 PLOT
-835
-232
-1208
-399
+865
+237
+1238
+404
 Massa do Combustível
-Massa (g)
 Tempo (s)
+Massa (g)
 0.0
 300.0
 0.0
 150.0
 true
 false
-"" ""
+"" "ask combustiveis [\n  create-temporary-plot-pen (word who)\n  set-plot-pen-color red\n  set massa-combustivel massa-combustivel - 1\n  plotxy ticks massa-combustivel\n]"
 PENS
-"default" 1.0 0 -16777216 true "" "plot count turtles"
 
 BUTTON
 42
@@ -189,7 +220,7 @@ BUTTON
 78
 Iniciar
 go
-NIL
+T
 1
 T
 OBSERVER
@@ -197,18 +228,18 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 40
 135
-212
+221
 168
-mass
-mass
+massa-inicial
+massa-inicial
 0
 300
-265.0
+300.0
 5
 1
 NIL
@@ -260,6 +291,16 @@ airplane
 true
 0
 Polygon -7500403 true true 150 0 135 15 120 60 120 105 15 165 15 195 120 180 135 240 105 270 120 285 150 270 180 285 210 270 165 240 180 180 285 195 285 165 180 105 180 60 165 15
+
+amendoim
+false
+0
+Circle -7500403 true true 26 56 127
+Circle -7500403 true true 86 116 127
+Circle -7500403 true true 86 86 127
+Circle -7500403 true true 146 56 127
+Circle -7500403 true true 26 131 127
+Circle -7500403 true true 146 131 127
 
 arrow
 true
@@ -417,6 +458,34 @@ true
 0
 Line -7500403 true 150 0 150 150
 
+nozes
+true
+0
+Rectangle -7500403 true true 60 105 240 180
+Circle -7500403 true true 39 84 42
+Circle -7500403 true true 69 69 42
+Circle -7500403 true true 69 69 42
+Circle -7500403 true true 99 69 42
+Circle -7500403 true true 129 69 42
+Circle -7500403 true true 159 69 42
+Circle -7500403 true true 189 69 42
+Circle -7500403 true true 219 69 42
+Circle -7500403 true true 234 99 42
+Circle -7500403 true true 234 129 42
+Circle -7500403 true true 234 129 42
+Circle -7500403 true true 234 129 42
+Circle -7500403 true true 234 129 42
+Circle -7500403 true true 219 144 42
+Circle -7500403 true true 204 159 42
+Circle -7500403 true true 174 159 42
+Circle -7500403 true true 144 159 42
+Circle -7500403 true true 114 159 42
+Circle -7500403 true true 84 159 42
+Circle -7500403 true true 54 159 42
+Circle -7500403 true true 39 144 42
+Circle -7500403 true true 39 129 42
+Circle -7500403 true true 24 114 42
+
 pentagon
 false
 0
@@ -442,6 +511,11 @@ Polygon -7500403 true true 165 180 165 210 225 180 255 120 210 135
 Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
+
+rectangle
+false
+14
+Rectangle -7500403 true false 30 75 270 210
 
 sheep
 false
