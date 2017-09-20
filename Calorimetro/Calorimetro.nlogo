@@ -3,6 +3,7 @@
 extensions [bitmap]
 
 globals[
+  calor-latente
 ]
 
 breed [ gelos gelo ]
@@ -11,7 +12,7 @@ breed [ aguas agua]
 breed [ massas-atuais massa-atual]
 gelos-own [massa-gelo]
 aguas-own [massa-agua]
-combustiveis-own [massa-combustivel calor-latente]
+combustiveis-own [massa-combustivel]
 
 
 to setup
@@ -29,7 +30,6 @@ end
 
 to go
    if ticks > 120 [stop]
-   ;;consumirGelo
    consumirCombustivel
    gerarAgua
    print ticks
@@ -162,16 +162,16 @@ PLOT
 50
 1225
 241
-Volume de Água
+Massa de Água
 Tempo (s)
 Massa de Agua (g)
 0.0
 120.0
 0.0
-100.0
+15.0
 false
 false
-"" "ask gelos [\n  create-temporary-plot-pen (word who)\n  set-plot-pen-color blue\n  set massa-gelo massa-gelo - 0.1\n  set size massa-gelo\n]\n\nask aguas[\n\n    plotxy ticks massa-agua\n]"
+"" "ask gelos [\n  create-temporary-plot-pen (word who)\n  set-plot-pen-color blue\n  set massa-gelo massa-gelo - 0.1\n  set size massa-gelo\n]\n\nask aguas[\n    set massa-agua massa-agua + ((calor-latente * 0.3) / 80) / 120\n    set size massa-agua\n    plotxy ticks massa-agua\n]"
 PENS
 
 PLOT
