@@ -13,12 +13,12 @@ globals[
 
 to set_variaveis_observadas
 
-  let minutos_agua 100
-  let porcentagem_colorida_agua 100
+  let minutos_agua 360
+  let porcentagem_colorida_agua 50
 
-  let minutos_nacl_3g 300
-  let minutos_nacl_15g 1500
-  let porcentagem_colorida_nacl 100
+  let minutos_nacl_3g 1440
+  let minutos_nacl_15g 7200
+  let porcentagem_colorida_nacl 50
 
   let minutos_detergente_1gota 100
   let minutos_detergente_10gotas 1000
