@@ -8,29 +8,41 @@ globals[
  incremento_porcentagem
  porcentagem
  cor_da_agua
+ maximo_pixeis_coloridos
 ]
 
 to set_variaveis_observadas
 
   let minutos_agua 100
+  let porcentagem_colorida_agua 100
+
   let minutos_nacl_3g 300
   let minutos_nacl_15g 1500
+  let porcentagem_colorida_nacl 100
+
   let minutos_detergente_1gota 100
   let minutos_detergente_10gotas 1000
+  let porcentagem_colorida_detergente 100
+
   let minutos_acucar_1g 90
   let minutos_acucar_10g 10
+  let porcentagem_colorida_acucar 100
 
   if reagente = "Nenhum"[
     set minutos_ate_colorir_completamente minutos_agua
+    set maximo_pixeis_coloridos 41.68 * porcentagem_colorida_agua
   ]
   if reagente = "NaCl"[
     set minutos_ate_colorir_completamente (((minutos_nacl_3g / 3) + (minutos_nacl_15g / 15)) / 2) * gramas_ou_gotas
+    set maximo_pixeis_coloridos 41.68 * porcentagem_colorida_nacl
   ]
   if reagente = "Detergente"[
     set minutos_ate_colorir_completamente (((minutos_detergente_1gota) + (minutos_detergente_10gotas / 10)) / 2) * gramas_ou_gotas
+    set maximo_pixeis_coloridos 41.68 * porcentagem_colorida_detergente
   ]
   if reagente = "Açucar"[
     set minutos_ate_colorir_completamente (((minutos_acucar_1g) + (minutos_acucar_10g * 10)) / 2) / gramas_ou_gotas
+    set maximo_pixeis_coloridos 41.68 * porcentagem_colorida_acucar
   ]
 
   ;Cuida da cor da agua
@@ -54,7 +66,8 @@ to setup
 
   set subida_completa 0
   set acoes_por_tick_atual 0.0
-  set_variaveis_observadas
+  set coloriu_flor 0
+  set maximo_pixeis_coloridos 0
 
   set_variaveis_observadas
 
@@ -81,11 +94,13 @@ to go
 end
 
 to colorir_flor
-  if pcolor = 8[
+  if coloriu_flor < maximo_pixeis_coloridos[
+    if pcolor = 8[
     set pcolor cor_da_agua
     set coloriu_flor coloriu_flor + 1
     set acoes_por_tick_atual acoes_por_tick_atual + 1
     set porcentagem porcentagem + incremento_porcentagem
+    ]
   ]
 end
 
@@ -218,7 +233,7 @@ CHOOSER
 reagente
 reagente
 "Nenhum" "NaCl" "Detergente" "Açucar"
-1
+0
 
 PLOT
 8
@@ -580,7 +595,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0
+NetLogo 6.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
